@@ -4,15 +4,15 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class StellarStrategy extends PassportStrategy(Strategy) {
-    constructor() {
-        super({
-            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            ignoreExpiration: false,
-            secretOrKey: 'secretKey',
-        });
-    }
+  constructor() {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: 'secretKey',
+    });
+  }
 
-    async validate(payload: any) {
-        return { publicKey: payload.sub };
-    }
+  validate(payload: { sub: string }) {
+    return { publicKey: payload.sub };
+  }
 }
