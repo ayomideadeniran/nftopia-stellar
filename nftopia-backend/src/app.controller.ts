@@ -16,9 +16,9 @@ export class AppController {
       type: 'object',
       properties: {
         status: { type: 'string', example: 'ok' },
-        timestamp: { type: 'string', example: '2024-01-22T12:00:00.000Z' }
-      }
-    }
+        timestamp: { type: 'string', example: '2024-01-22T12:00:00.000Z' },
+      },
+    },
   })
   getHealth(): { status: string; timestamp: string } {
     return this.appService.getHealth();
