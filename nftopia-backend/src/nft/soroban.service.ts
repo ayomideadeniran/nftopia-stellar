@@ -29,7 +29,10 @@ export class SorobanService {
             );
             return data;
         } catch (e) {
-            this.logger.error(`Error fetching contract data: ${e.message}`);
+            this.logger.error(
+                `Failed to fetch contract data for contract ${contractId}: ${e.message}`,
+                e.stack,
+            );
             return null;
         }
     }
