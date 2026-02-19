@@ -2,16 +2,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class StellarNftDto {
-    @ApiProperty()
+    @ApiProperty({ description: 'Stellar Contract ID (C...)' })
     contractId: string;
 
-    @ApiProperty()
+    @ApiProperty({ description: 'Token ID (uint256 or string)' })
     tokenId: string;
 
-    @ApiProperty()
+    @ApiProperty({ description: 'Owner Account ID (G...)' })
     owner: string;
 
-    @ApiProperty({ required: false })
+    @ApiProperty({ required: false, description: 'IPFS or HTTP URI' })
     metadataUri?: string;
 
     @ApiProperty({ required: false })

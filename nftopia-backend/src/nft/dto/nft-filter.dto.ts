@@ -3,12 +3,12 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional, IsNumber, Min } from 'class-validator';
 
 export class NftFilterDto {
-    @ApiProperty({ required: false })
+    @ApiProperty({ required: false, description: 'Stellar Contract ID (C...)' })
     @IsString()
     @IsOptional()
     contractId?: string;
 
-    @ApiProperty({ required: false })
+    @ApiProperty({ required: false, description: 'Stellar Account ID (G...)' })
     @IsString()
     @IsOptional()
     owner?: string;

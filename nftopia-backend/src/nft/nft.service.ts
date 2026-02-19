@@ -1,7 +1,9 @@
 
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 import { NftFilterDto } from './dto/nft-filter.dto';
 import { StellarNft } from './entities/stellar-nft.entity';
 import { NftMetadata } from './entities/nft-metadata.entity';
@@ -15,6 +17,7 @@ export class NftService implements OnModuleInit {
     private lastSyncedLedger = 0;
 
     constructor(
+        @Inject(CACHE_MANAGER) private cacheManager: Cache,
         @InjectRepository(StellarNft)
         private readonly nftRepository: Repository<StellarNft>,
         @InjectRepository(NftMetadata)
@@ -63,21 +66,35 @@ export class NftService implements OnModuleInit {
     }
 
     async getPopular() {
-        return this.nftRepository.find({
+        const cacheKey = 'nft:popular';
+        const cached = await this.cacheManager.get(cacheKey);
+        if (cached) return cached;
+
+        const popular = await this.nftRepository.find({
             order: { views: 'DESC' },
             take: 10,
             relations: ['metadata'],
         });
+
+        await this.cacheManager.set(cacheKey, popular, 300000); // 5 minutes
+        return popular;
     }
 
     async getTopSellers() {
-        return this.nftRepository.query(`
+        const cacheKey = 'nft:top-sellers';
+        const cached = await this.cacheManager.get(cacheKey);
+        if (cached) return cached;
+
+        const sellers = await this.nftRepository.query(`
         SELECT owner, count(*) as sales, sum(volume) as volume
         FROM stellar_nfts
         GROUP BY owner
         ORDER BY volume DESC
         LIMIT 10
     `);
+
+        await this.cacheManager.set(cacheKey, sellers, 300000); // 5 minutes
+        return sellers;
     }
 
     @Cron(CronExpression.EVERY_MINUTE)
