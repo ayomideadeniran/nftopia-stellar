@@ -22,12 +22,12 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
           transport:
             config.get('NODE_ENV') !== 'production'
               ? {
-                target: 'pino-pretty',
-                options: {
-                  singleLine: true,
-                  colorize: true,
-                },
-              }
+                  target: 'pino-pretty',
+                  options: {
+                    singleLine: true,
+                    colorize: true,
+                  },
+                }
               : undefined,
           redact: ['req.headers.authorization', 'req.headers.cookie'],
           customLogLevel: (req, res) => {
@@ -57,18 +57,18 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
     ...(process.env.NODE_ENV === 'test'
       ? []
       : [
-        TypeOrmModule.forRootAsync({
-          imports: [ConfigModule], // TypeOrm still needs imports
-          inject: [ConfigService],
-          useFactory: (config: ConfigService) => ({
-            type: 'postgres',
-            url: config.get<string>('DATABASE_URL'),
-            autoLoadEntities: true,
-            synchronize: false,
+          TypeOrmModule.forRootAsync({
+            imports: [ConfigModule], // TypeOrm still needs imports
+            inject: [ConfigService],
+            useFactory: (config: ConfigService) => ({
+              type: 'postgres',
+              url: config.get<string>('DATABASE_URL'),
+              autoLoadEntities: true,
+              synchronize: false,
+            }),
           }),
-        }),
-        UsersModule,
-      ]),
+          UsersModule,
+        ]),
     NftModule,
   ],
   controllers: [AppController],
@@ -80,4 +80,4 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

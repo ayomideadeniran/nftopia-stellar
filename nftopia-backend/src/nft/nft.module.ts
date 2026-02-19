@@ -1,4 +1,3 @@
-
 import { Module } from '@nestjs/common';
 import { NftService } from './nft.service';
 import { NftController } from './nft.controller';
@@ -18,4 +17,4 @@ import { NftMetadata } from './entities/nft-metadata.entity';
   providers: [NftService, SorobanService],
   exports: [NftService, SorobanService],
 })
-export class NftModule { }
+export class NftModule {}
