@@ -3,38 +3,35 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import * as redisStore from 'cache-manager-redis-store';
-
 import { AppController } from './app.controller';
-import { AuthModule } from './auth/auth.module';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
-    // Environment variables
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
+    ConfigModule.forRoot({ isGlobal: true }),
 
-    // Global Redis cache
-    CacheModule.register({
+    CacheModule.registerAsync({
       isGlobal: true,
-      store: redisStore as any,
-      host: process.env.REDIS_HOST || 'localhost',
-      port: parseInt(process.env.REDIS_PORT || '6379', 10),
-      password: process.env.REDIS_PASSWORD || undefined,
-      db: parseInt(process.env.REDIS_DB || '0', 10),
-      ttl: parseInt(process.env.CACHE_TTL || '300', 10),
+      inject: [ConfigService],
+      useFactory: async (config: ConfigService) => ({
+        store: (await import('cache-manager-redis-store')).default,
+        host: config.get('REDIS_HOST') || 'localhost',
+        port: parseInt(config.get('REDIS_PORT') || '6379', 10),
+        password: config.get('REDIS_PASSWORD'),
+        db: parseInt(config.get('REDIS_DB') || '0', 10),
+        ttl: parseInt(config.get('CACHE_TTL') || '300', 10),
+      }),
     }),
 
     AuthModule,
 
-    // Disable DB & UsersModule in tests
     ...(process.env.NODE_ENV === 'test'
       ? []
       : [
           TypeOrmModule.forRootAsync({
+            imports: [ConfigModule], // TypeOrm still needs imports
             inject: [ConfigService],
             useFactory: (config: ConfigService) => ({
               type: 'postgres',

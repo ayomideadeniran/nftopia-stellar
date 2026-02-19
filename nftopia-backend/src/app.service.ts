@@ -4,7 +4,7 @@ import type { Cache } from 'cache-manager';
 
 @Injectable()
 export class AppService {
-  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) { }
+  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
   getHealth(): { status: string; timestamp: string } {
     return {
