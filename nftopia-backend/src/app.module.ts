@@ -8,11 +8,37 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { NftModule } from './nft/nft.module';
+import { LoggerModule } from 'nestjs-pino';
+import { APP_FILTER } from '@nestjs/core';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 @Module({
   imports: [
+    LoggerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        pinoHttp: {
+          level: config.get('NODE_ENV') === 'production' ? 'info' : 'debug',
+          transport:
+            config.get('NODE_ENV') !== 'production'
+              ? {
+                target: 'pino-pretty',
+                options: {
+                  singleLine: true,
+                  colorize: true,
+                },
+              }
+              : undefined,
+          redact: ['req.headers.authorization', 'req.headers.cookie'],
+          customLogLevel: (req, res) => {
+            if (res.statusCode >= 500) return 'error';
+            if (res.statusCode >= 400) return 'warn';
+            return 'info';
+          },
+        },
+      }),
+    }),
     ConfigModule.forRoot({ isGlobal: true }),
-
     CacheModule.registerAsync({
       isGlobal: true,
       inject: [ConfigService],
@@ -46,6 +72,12 @@ import { NftModule } from './nft/nft.module';
     NftModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+  ],
 })
 export class AppModule { }
