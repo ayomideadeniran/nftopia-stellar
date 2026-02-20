@@ -76,17 +76,36 @@ impl INft for NftContract {
         metadata_uris: Vec<String>,
         attributes: Vec<Vec<TokenAttribute>>,
     ) -> Result<Vec<u64>, ContractError> {
-        // Implemented in next commit (batch operations)
-        Ok(Vec::new(&env))
+        let mut results = Vec::new(&env);
+        if recipients.len() != metadata_uris.len() || recipients.len() != attributes.len() {
+            return Err(ContractError::NotPermitted);
+        }
+
+        // Simplified: use first recipient as minter/auth
+        let sender = recipients.first().ok_or(ContractError::NotPermitted)?;
+
+        for i in 0..recipients.len() {
+            let to = recipients.get(i).unwrap();
+            let uri = metadata_uris.get(i).unwrap();
+            let attrs = attributes.get(i).unwrap();
+            
+            let id = crate::token::mint_token(&env, &to, uri, attrs, None, &sender)?;
+            results.push_back(id);
+        }
+
+        Ok(results)
     }
 
     fn batch_transfer(
         env: Env,
-        _from: Address,
-        _to: Address,
-        _token_ids: Vec<u64>,
+        from: Address,
+        to: Address,
+        token_ids: Vec<u64>,
     ) -> Result<(), ContractError> {
-        // Implemented in next commit
+        for i in 0..token_ids.len() {
+            let id = token_ids.get(i).unwrap();
+            crate::transfer::transfer(&env, &from, &to, id, &from)?;
+        }
         Ok(())
     }
 }
