@@ -16,12 +16,11 @@ pub fn get_admin(env: &Env) -> Option<Address> {
 }
 
 pub fn set_admin(env: &Env, new_admin: &Address) {
-    if let Some(admin) = get_admin(env) {
-        if admin != *new_admin {
+    if let Some(admin) = get_admin(env)
+        && admin != *new_admin {
             // Usually we require current admin auth
             admin.require_auth();
         }
-    }
     env.storage().instance().set(&DataKey::Admin, new_admin);
 }
 
@@ -68,11 +67,10 @@ pub fn revoke_role(env: &Env, role: Role, address: &Address) -> Result<(), Contr
 
 pub fn has_role(env: &Env, role: Role, address: &Address) -> bool {
     // Admin inherently has all operator roles, or we can check exact match
-    if let Some(admin) = get_admin(env) {
-        if admin == *address {
+    if let Some(admin) = get_admin(env)
+        && admin == *address {
             return true;
         }
-    }
 
     let key = match role {
         Role::Minter => DataKey::Minter(address.clone()),

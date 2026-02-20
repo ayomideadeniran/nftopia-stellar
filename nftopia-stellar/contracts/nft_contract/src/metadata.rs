@@ -16,11 +16,10 @@ pub fn set_collection_config(
     require_role(env, Role::Admin, sender)?;
 
     // If metadata is already frozen, block changes
-    if let Some(existing) = get_collection_config(env) {
-        if existing.metadata_is_frozen {
+    if let Some(existing) = get_collection_config(env)
+        && existing.metadata_is_frozen {
             return Err(ContractError::NotPermitted);
         }
-    }
     env.storage()
         .instance()
         .set(&DataKey::CollectionConfig, config);
@@ -52,11 +51,10 @@ pub fn set_token_uri(
 ) -> Result<(), ContractError> {
     require_role(env, Role::MetadataUpdater, sender)?;
     // Ensure metadata is not frozen
-    if let Some(config) = get_collection_config(env) {
-        if config.metadata_is_frozen {
+    if let Some(config) = get_collection_config(env)
+        && config.metadata_is_frozen {
             return Err(ContractError::NotPermitted);
         }
-    }
     env.storage()
         .persistent()
         .set(&DataKey::TokenURI(token_id), uri);

@@ -1,4 +1,5 @@
 #![no_std]
+#![allow(unused_variables)]
 
 use soroban_sdk::{Address, Bytes, Env, String, Vec, contract, contractimpl};
 
@@ -54,7 +55,7 @@ impl INft for NftContract {
         attributes: Vec<TokenAttribute>,
         royalty_override: Option<RoyaltyInfo>,
     ) -> Result<u64, ContractError> {
-        let sender = to.clone(); // In a real setup, sender might be `env.invoker()`, here we pass it. To be accurate, we should pass invoker or use `env.current_contract_address()` ? Wait, `to` is the recipient. Let's assume the sender auths via a separate arg in typical Soroban, but for `INft`, the interface doesn't have `sender`. So we must get sender via auth, but Soroban doesn't have `msg.sender`. Instead, we just assume `to` is the minter or we need a `sender: Address` argument. We'll add `sender` or assume `to` is the one minting and must auth. Let's make `to` the sender for now, or just require `to.require_auth()`. Actually `mint_token` requires a sender. Let's pass `to` as sender.
+        let _sender = to.clone(); // In a real setup, sender might be `env.invoker()`, here we pass it. To be accurate, we should pass invoker or use `env.current_contract_address()` ? Wait, `to` is the recipient. Let's assume the sender auths via a separate arg in typical Soroban, but for `INft`, the interface doesn't have `sender`. So we must get sender via auth, but Soroban doesn't have `msg.sender`. Instead, we just assume `to` is the minter or we need a `sender: Address` argument. We'll add `sender` or assume `to` is the one minting and must auth. Let's make `to` the sender for now, or just require `to.require_auth()`. Actually `mint_token` requires a sender. Let's pass `to` as sender.
         crate::token::mint_token(&env, &to, metadata_uri, attributes, royalty_override, &to)
     }
 

@@ -13,11 +13,10 @@ pub fn is_approved_or_owner(
     if token.owner == *spender {
         return Ok(true);
     }
-    if let Some(approved) = token.approved {
-        if approved == *spender {
+    if let Some(approved) = token.approved
+        && approved == *spender {
             return Ok(true);
         }
-    }
     let is_operator = env
         .storage()
         .instance()

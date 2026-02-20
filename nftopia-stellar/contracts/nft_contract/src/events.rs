@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+#![allow(unused_imports)]
 use soroban_sdk::{Address, Env, symbol_short};
 
 pub fn emit_mint(env: &Env, to: &Address, token_id: u64) {
